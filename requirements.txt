@@ -1,0 +1,7 @@
+# scrapping
+requests
+beautifulsoup4
+lxml
+
+# Data handling
+pandas
