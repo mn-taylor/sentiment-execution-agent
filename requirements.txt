@@ -5,6 +5,7 @@ datetime
 
 # Data handling
 pandas
+sortedcontainers
 
 # Sentiment scoring
 vaderSentiment
