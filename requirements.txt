@@ -1,7 +1,7 @@
 # scrapping
-requests
-beautifulsoup4
-lxml
+psaw
+pandas
+datetime
 
 # Data handling
 pandas

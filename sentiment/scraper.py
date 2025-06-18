@@ -1,48 +1,38 @@
-import requests
-from bs4 import BeautifulSoup
+import praw
+import datetime as dt
+import pandas as pd
 import re
 
-def scrape_headlines(max_items=5): # Should decide what is optimal later
+def scrape_headlines(subreddit='wallstreetbets', start_date="2025-06-15", end_date="2025-06-17", max_items=100, save_path="data/reddit_headlines.csv"): # Should decide what is optimal later
     """
-    Scrape Yahoo Finance Headlines from main page
+    Scrape reddit headline associated with
     """
-    base_url = "https://finance.yahoo.com/"
-    url = base_url # TODO implement ticker specific page
+    reddit = praw.Reddit(
+        client_id="g9nwtU6IkB7ey_6AdiVLmQ",
+        client_secret="D-Wgdk1fBlBPJg7tYPZQJ0VSSZAc4w",
+        user_agent="fin-scraper:v1 (by u/mtaylor121303)"
+    )
 
-    response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch page: {url} ({response.status_code})")
-    
-    soup = BeautifulSoup(response.text, "html.parser")
+    # convert start and end timestamps to UNIX
+    start_timestamp = int(dt.datetime.fromisoformat(start_date).timestamp())
+    end_timestamp = int(dt.datetime.fromisoformat(end_date).timestamp())
 
-    # keep h3 and h2 headlines
-    headlines = set()
-    for tag in soup.find_all(['h3', 'h2'], limit=50):
-        if tag.text:
-            # clear unnecessary spaces
-            clean_text = re.sub(r'\s+', ' ', tag.text.strip())
-            headlines.add(clean_text)
+    posts = []
+    for post in reddit.subreddit(subreddit).new(limit=max_items * 2):
+        post_timestamp = int(post.created_utc)
 
-    return list(headlines)[:max_items]
-    
+        if post.score > 30:
+            posts.append({
+                'title': post.title,
+                'timestamp': dt.datetime.fromtimestamp(post_timestamp),
+                'score': post.score                                      
+            })
+        if len(posts) >= max_items:
+            break
 
-def process_headlines(headlines):
-    processed = []
-    for h in headlines:
-        h_clean = re.sub(r'[^\w\s]', '',  h.lower().strip())
-        if h_clean:
-            processed.append(h_clean)
-    return processed
+    df = pd.DataFrame(posts)
+    df.to_csv(save_path, index=False)
+    return df
 
 if __name__ == "__main__":
-    headlines = scrape_headlines(max_items=20)
-    processed = process_headlines(headlines)
-
-    # check we're cleaning the headlines
-    print("Raw Headlines:")
-    for h in headlines:
-        print("-", h)
-
-    print("\nProcessed:")
-    for p in processed:
-        print("-", p)
+    headlines = scrape_headlines(max_items=1_000)
