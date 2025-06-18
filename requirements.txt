@@ -5,3 +5,9 @@ datetime
 
 # Data handling
 pandas
+
+# Sentiment scoring
+vaderSentiment
+
+# Visualization
+matplotlib

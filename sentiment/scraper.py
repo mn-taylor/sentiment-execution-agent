@@ -13,15 +13,11 @@ def scrape_headlines(subreddit='wallstreetbets', start_date="2025-06-15", end_da
         user_agent="fin-scraper:v1 (by u/mtaylor121303)"
     )
 
-    # convert start and end timestamps to UNIX
-    start_timestamp = int(dt.datetime.fromisoformat(start_date).timestamp())
-    end_timestamp = int(dt.datetime.fromisoformat(end_date).timestamp())
-
     posts = []
     for post in reddit.subreddit(subreddit).new(limit=max_items * 2):
         post_timestamp = int(post.created_utc)
 
-        if post.score > 30:
+        if post.score > 10:
             posts.append({
                 'title': post.title,
                 'timestamp': dt.datetime.fromtimestamp(post_timestamp),
@@ -35,4 +31,4 @@ def scrape_headlines(subreddit='wallstreetbets', start_date="2025-06-15", end_da
     return df
 
 if __name__ == "__main__":
-    headlines = scrape_headlines(max_items=1_000)
+    headlines = scrape_headlines(max_items=1000)
