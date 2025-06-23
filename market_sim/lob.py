@@ -6,6 +6,8 @@ class LimitOrderBook:
         self.bids = SortedDict(lambda x: -x)
         self.asks = SortedDict()
         self.order_id_counter = 0
+        self.spread = None
+        self.mid_price = None
         self.orders = {} # (side, price, quantity, is_agent)
 
     def add_limit_order(self, side, price, quantity):
@@ -73,9 +75,10 @@ class LimitOrderBook:
         best_bid = self.get_best_bid()
         best_ask = self.get_best_ask()
         if best_bid is None or best_ask is None:
-            return None
+            return self.mid_price
         
-        return 0.5 * (best_bid + best_ask)
+        self.mid_price = 0.5 * (best_bid + best_ask)
+        return self.mid_price
     
 
     def get_volume_at_price(self, side, price):
@@ -83,6 +86,16 @@ class LimitOrderBook:
         if price not in book:
             return 0
         return sum(order["quantity"] for order in book[price])
+    
+
+    def get_spread(self):
+        best_bid = self.get_best_bid()
+        best_ask = self.get_best_ask()
+        if best_bid is None or best_ask is None:
+            return self.spread
+        
+        self.spread = best_ask - best_bid
+        return self.spread
     
     
     def match_orders(self, side, quantity, price, order_id):
@@ -138,12 +151,6 @@ class LimitOrderBook:
 
 if __name__ == '__main__':
     lob = LimitOrderBook()
-    lob.add_limit_order("sell", 100, 10)
-    lob.add_limit_order("buy", 90, 10)
-    lob.add_limit_order("buy", 80, 10)
-
-    lob.add_limit_order("buy", 110, 5)
-
     print(lob)
 
                                  
