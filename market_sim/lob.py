@@ -45,6 +45,9 @@ class LimitOrderBook:
 
                 if top_order["quantity"]==0: # fulfilled order
                     order_queue.popleft()
+                    trades.append((top_order["id"], best_price, trade_quantity))
+                else:
+                    trades.append((top_order["id"], best_price, trade_quantity))
 
             if not order_queue: # No more orders
                 del book[best_price]
@@ -122,6 +125,7 @@ class LimitOrderBook:
 
                 if head["quantity"] == 0:
                     current_level.popleft()
+
 
             if not current_level: # all orders filled
                 del opposite_book[opp_price]

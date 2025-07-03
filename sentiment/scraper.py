@@ -35,4 +35,4 @@ if __name__ == "__main__":
     scrape_headlines(subreddit="wallstreetbets", max_items=1000)
     scrape_headlines(subreddit="stocks", max_items=1000)
     scrape_headlines(subreddit="investing", max_items=1000)
-    scrape_headlines(subreddit="StockMarke", max_items=1000)
+    scrape_headlines(subreddit="StockMarket", max_items=1000)

@@ -6,9 +6,14 @@ datetime
 # Data handling
 pandas
 sortedcontainers
+numpy
 
 # Sentiment scoring
 vaderSentiment
 
 # Visualization
 matplotlib
+
+# RL
+gymnasium
+torch

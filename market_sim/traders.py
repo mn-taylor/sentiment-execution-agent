@@ -1,13 +1,13 @@
 import random
 from abc import ABC, abstractmethod
-from lob import LimitOrderBook
+from market_sim.lob import LimitOrderBook
 
 class Trader(ABC):
     def __init__(self, trader_id):
         self.trader_id = trader_id
 
     @abstractmethod
-    def act(self, lob: LimitOrderBook, sentiment):
+    def act(self, lob: LimitOrderBook, sentiment, state):
         """
             Defines the traders actions as a function of the lob
         """
@@ -27,7 +27,7 @@ class MarketMaker(Trader):
         self.quantity = 10
         self.order_prob = 0.8 # Make sure not to spam orders
 
-    def act(self, lob: LimitOrderBook, sentiment):
+    def act(self, lob: LimitOrderBook, sentiment, state):
         mid = lob.get_mid_price() or 100
         best_bid = lob.get_best_bid() or (mid - 0.5)
         best_ask = lob.get_best_ask() or (mid + 0.5)
@@ -51,7 +51,7 @@ class LiquidityTaker(Trader):
         super().__init__(trader_id)
         self.max_quantity = max_quantity
 
-    def act(self, lob: LimitOrderBook, sentiment):
+    def act(self, lob: LimitOrderBook, sentiment, state):
         side = random.choice(["buy", "sell"])
         quantity = random.randint(1, self.max_quantity)
         return [("market", side, None, quantity)]
@@ -71,7 +71,7 @@ class NoiseTrader(Trader):
         self.max_quantity = max_quantity
 
 
-    def act(self, lob: LimitOrderBook, sentiment):
+    def act(self, lob: LimitOrderBook, sentiment, state):
         # randomly submit market orders
         action_type = "market" if random.random() < self.market_order_prob else "limit"
         side = random.choice(["buy", "sell"])
@@ -98,7 +98,7 @@ class SentimentMarketMaker(Trader):
         self.order_prob = 0.8 # Make sure not to spam orders
         self.sentiment_sensitivity = 0.01
 
-    def act(self, lob: LimitOrderBook, sentiment):
+    def act(self, lob: LimitOrderBook, sentiment, state):
         mid = lob.get_mid_price() or 100
         delta = sentiment * self.sentiment_sensitivity
         best_bid = (lob.get_best_bid() or (mid - 0.5))
@@ -122,7 +122,7 @@ class SentimentLiquidityTaker(Trader):
         super().__init__(trader_id)
         self.max_quantity = max_quantity
 
-    def act(self, lob: LimitOrderBook, sentiment):
+    def act(self, lob: LimitOrderBook, sentiment, state):
         if random.random() < (1 + sentiment)/2:
             side = "buy"
         else:
